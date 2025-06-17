@@ -1,0 +1,46 @@
+
+.account-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  border-radius: 4px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+}
+
+.account-card-details {
+  flex: 1;
+}
+
+.account-card-title {
+  margin: 0 0 0.5rem;
+  font-size: 1.25rem;
+  color: #2c3e50;
+}
+
+.account-card-amount {
+  margin: 0 0 0.25rem;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.account-card-desc {
+  margin: 0;
+  color: #555;
+}
+
+.account-card-button {
+  background-color: #00bc77;
+  color: white;
+  border: none;
+  padding: 0.75rem 1rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.account-card-button:hover {
+  background-color: #00a369;
+}

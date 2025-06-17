@@ -1,4 +1,3 @@
-import api from '../../../api/axios'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Logo from '../../composants/Logo'
@@ -11,34 +10,32 @@ export default function LoginPage() {
   const navigate = useNavigate()
   const [error, setError] = useState(null)
 
-const handleSubmit = async (e) => {
+async function handleSubmit(e) {
   e.preventDefault()
   const form = e.target
-  const email = form.email.value
+  const email    = form.email.value
   const password = form.password.value
-  const remember = form.remember.checked
+  //const remember = form.remember.checked
 
   try {
-    const response = await api.post('/user/login', { email, password })
-    console.log('Login response:', response.data)
-    const token = response.data.body?.token
+    const resp = await fetch('http://localhost:3001/api/v1/user/login', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ email, password }),
+    })
+    if (!resp.ok) throw new Error(`Login échoué (${resp.status})`)
+    const { body } = await resp.json()
+     const token = body.token
+    if (!token) throw new Error('Token manquant dans la réponse')
     
-    if (remember) {
-      // Persiste même après fermeture du navigateur
-      localStorage.setItem('authToken', token)
-      console.log('Stored in localStorage:', localStorage.getItem('authToken'))
-    } else {
-      // Garde uniquement pour la session en cours
-      sessionStorage.setItem('authToken', token)
-      console.log('Stored in sessionStorage:', sessionStorage.getItem('authToken'))
-    }
-
+   localStorage.setItem('authToken', token)
+   
     navigate('/profile')
   } catch (err) {
-    setError('Identifiants invalides',err)
+    console.error(err)
+    setError('Identifiants invalides')
   }
 }
-
   return (
     <>
     

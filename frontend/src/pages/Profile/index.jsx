@@ -1,119 +1,135 @@
-import api from '../../../api/axios';
 import { useEffect, useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import logo from '../../assets/img/argentBankLogo.png'
-
+import Header from '../../composants/Header'
+import Footer from '../../composants/Footer'
+import AccountCard from '../../composants/AccountCard'
+import './profile.css' 
 export default function Profile() {
-  const [user, setUser] = useState(null)
+  const [user, setUser]         = useState(null)
   const [accounts, setAccounts] = useState([])
-  const [editing, setEditing] = useState(false)
-  const [username, setUsername] = useState('')
-  const navigate = useNavigate()
+  const [editing, setEditing]   = useState(false)
+  const [newName, setNewName]   = useState('')
+  const navigate                = useNavigate()
 
-  // Au montage, fetch profile
-  
   useEffect(() => {
-    (async () => {
-      try {
-        const res = await api.get('/user/profile')
-        const data = res.data.body
-        setUser(data)
-        setUsername(data.userName || '')
-        // On simule des comptes (à remplacer par l'appel transactions plus tard)
+    const token = localStorage.getItem('authToken')
+
+    // Si pas de token, on renvoie au login
+    if (!token) {
+      navigate('/login')
+      return
+    }
+
+    // Appel GET /user/profile avec Fetch
+    fetch('http://localhost:3001/api/v1/user/profile', {
+      method:  'GET',
+      headers: {
+        'Content-Type':  'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    })
+      .then(res => {
+        if (!res.ok) {
+          // Si le serveur renvoie 401 ou un autre code, on renvoie au login
+          throw new Error(`Statut ${res.status}`)
+        }
+        return res.json()
+      })
+      .then(data => {
+        // data.body contient l’objet user
+        const profile = data.body
+        setUser(profile)
+        setNewName(profile.userName || profile.firstName)
+
+        // Si ton back ne renvoie pas les comptes,
+        // simule-les comme avant :
         setAccounts([
-          { title: 'Checking (x8349)', amount: '$2,082.79', desc: 'Available Balance' },
-          { title: 'Savings (x6712)', amount: '$10,928.42', desc: 'Available Balance' },
-          { title: 'Credit Card (x8349)', amount: '$184.30',  desc: 'Current Balance' },
+          { id: 1, title: 'Checking (x8349)', amount: '$2,082.79', desc: 'Available Balance' },
+          { id: 2, title: 'Savings (x6712)',  amount: '$10,928.42', desc: 'Available Balance' },
+          { id: 3, title: 'Credit Card (x8349)', amount: '$184.30',  desc: 'Current Balance' },
         ])
-      } catch {
-        // pas de token ou erreur → redirige vers login
+      })
+      .catch(err => {
+        console.error('Impossible de récupérer le profil', err)
         navigate('/login')
-      }
-    })()
+      })
   }, [navigate])
 
-  const handleEditToggle = () => setEditing(!editing)
-  const handleNameSave = async () => {
-    try {
-      await api.put('/user/profile', { username })
-      setUser(prev => ({ ...prev, userName: username }))
-      setEditing(false)
-    } catch {
-      // gérer l'erreur si besoin
-    }
+  // Fonction pour sauvegarder le nouveau nom
+  function handleSave() {
+    const token = localStorage.getItem('authToken')
+    if (!token) return
+
+    fetch('http://localhost:3001/api/v1/user/profile', {
+      method:  'PUT',
+      headers: {
+        'Content-Type':  'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({ username: newName }),
+    })
+      .then(res => {
+        if (!res.ok) throw new Error(`Statut ${res.status}`)
+        return res.json()
+      })
+      .then(() => {
+        setUser(prev => ({ ...prev, userName: newName }))
+        setEditing(false)
+      })
+      .catch(err => {
+        console.error('Erreur lors de la mise à jour du nom', err)
+      })
   }
 
-  if (!user) return null  // ou un Loader
+  if (!user) {
+    return <p>Chargement du profil…</p>
+  }
 
   return (
     <>
-      <nav className="main-nav">
-        <Link className="main-nav-logo" to="/">
-          <img
-            className="main-nav-logo-image"
-            src={logo}
-            alt="Argent Bank Logo"
-          />
-          <h1 className="sr-only">Argent Bank</h1>
-        </Link>
-        <div>
-          <span className="main-nav-item">
-            <i className="fa fa-user-circle" /> {user.userName || user.firstName}
-          </span>
-          <button className="main-nav-item" onClick={() => {
-            localStorage.removeItem('authToken')
-            navigate('/login')
-          }}>
-            <i className="fa fa-sign-out" /> Sign Out
-          </button>
-        </div>
-      </nav>
+      <Header userName={user.userName || user.firstName} />
 
-      <main className="main bg-dark">
-        <div className="header">
+      <main className="page-container">
+        <section className="profile-header">
           <h1>
             Welcome back
             <br />
             {user.firstName} {user.lastName}!
           </h1>
+
           {editing ? (
-            <div>
+            <div className="edit-name">
               <input
                 type="text"
-                value={username}
-                onChange={e => setUsername(e.target.value)}
+                value={newName}
+                onChange={e => setNewName(e.target.value)}
               />
-              <button className="edit-button" onClick={handleNameSave}>
+              <button onClick={handleSave} className="edit-button">
                 Save
               </button>
             </div>
           ) : (
-            <button className="edit-button" onClick={handleEditToggle}>
+            <button onClick={() => setEditing(true)} className="edit-button">
               Edit Name
             </button>
           )}
-        </div>
+        </section>
 
         <h2 className="sr-only">Accounts</h2>
-        {accounts.map((acct, i) => (
-          <section className="account" key={i}>
-            <div className="account-content-wrapper">
-              <h3 className="account-title">Argent Bank {acct.title}</h3>
-              <p className="account-amount">{acct.amount}</p>
-              <p className="account-amount-description">{acct.desc}</p>
-            </div>
-            <div className="account-content-wrapper cta">
-              <button className="transaction-button">
-                View transactions
-              </button>
-            </div>
-          </section>
+        {accounts.map(acct => (
+          <AccountCard
+            key={acct.id}
+            title={acct.title}
+            amount={acct.amount}
+            desc={acct.desc}
+            onView={() => {
+              /* future navigation vers /transactions/… */
+            }}
+          />
         ))}
       </main>
 
-      <footer className="footer">
-        <p className="footer-text">Copyright 2020 Argent Bank</p>
-      </footer>
+      <Footer />
     </>
   )
 }
