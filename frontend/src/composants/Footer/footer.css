@@ -1,0 +1,11 @@
+.footer {
+  background: var(--color-gray-lighter);
+  text-align: center;
+  padding: 2rem;
+  margin-top: auto; /* pousse tout vers le bas */
+}
+
+.footer-text {
+  color: #555;
+  font-size: 0.9rem;
+}

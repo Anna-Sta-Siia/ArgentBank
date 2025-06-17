@@ -1,8 +1,6 @@
-// frontend/src/pages/Profile/index.jsx
+import api from '../../../api/axios';
 import { useEffect, useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import api from '../../../api/axios';
-import '../../assets/css/main.css'   
 import logo from '../../assets/img/argentBankLogo.png'
 
 export default function Profile() {
@@ -13,6 +11,7 @@ export default function Profile() {
   const navigate = useNavigate()
 
   // Au montage, fetch profile
+  
   useEffect(() => {
     (async () => {
       try {

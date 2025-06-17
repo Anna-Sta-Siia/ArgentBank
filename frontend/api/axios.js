@@ -1,19 +1,19 @@
-import axios from 'axios';
+import axios from 'axios'
 
 const api = axios.create({
   baseURL: 'http://localhost:3001/api/v1',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
+  headers: { 'Content-Type': 'application/json' },
+})
 
-// Intercepteur pour injecter automatiquement le token
-api.interceptors.request.use(config => {
-  const token = localStorage.getItem('authToken');
+api.interceptors.request.use((config) => {
+  const token =
+    sessionStorage.getItem('authToken') ||
+    localStorage.getItem('authToken')
+     console.log('Interceptor picks up token:', token) 
   if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+    config.headers.Authorization = `Bearer ${token}`
   }
-  return config;
-});
+  return config
+})
 
-export default api;
+export default api

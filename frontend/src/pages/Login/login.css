@@ -1,0 +1,44 @@
+/* Centre tout le contenu de la page */
+.main-nav-logo{
+  justify-content: center;
+  margin-top: 16px;
+}
+.login-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 4rem 1rem;
+  background-color: white;
+}
+
+
+/* Icone et titre alignés */
+.login-icon {
+  font-size: 72px;
+  color: #00bc77;
+  margin-bottom: 2.5rem;
+}
+
+.login-title {
+  font-size: 44px;
+  color: #2c3e50;
+  text-align: center;
+  font-weight: bold;
+}
+
+/* Bouton plein largeur */
+.login-button {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: #00bc77;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.login-button:hover,
+.login-button:focus {
+  background-color: #00a369;
+}

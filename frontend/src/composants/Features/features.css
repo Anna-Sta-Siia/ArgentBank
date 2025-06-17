@@ -1,0 +1,9 @@
+.features {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  background-color: white;                     
+  padding: 0 2rem;                             
+  border-bottom: 1px solid var(--color-gray-lighter);
+}
+

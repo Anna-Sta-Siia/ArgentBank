@@ -1,0 +1,42 @@
+version: "3.8"
+
+services:
+  mongo:
+    image: mongo:6.0
+    container_name: argentbank-mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: argentbank
+    volumes:
+      - mongo_data:/data/db
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile       # voir note ci-dessous
+    container_name: argentbank-api
+    restart: unless-stopped
+    depends_on:
+      - mongo
+    ports:
+      - "3001:3001"
+    environment:
+      # si dans ton code tu relies mongodb via process.env.MONGO_URL
+      MONGO_URL: mongodb://mongo:27017/argentbank
+      DATABASE_URL: mongodb://mongo:27017/argentbank
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile       # voir note ci-dessous
+    container_name: argentbank-ui
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "5173:5173"
+
+volumes:
+  mongo_data:
