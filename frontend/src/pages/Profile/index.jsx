@@ -1,105 +1,100 @@
-import { useEffect, useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
-import Header from '../../composants/Header'
-import Footer from '../../composants/Footer'
-import AccountCard from '../../composants/AccountCard'
-import './profile.css' 
-export default function Profile() {
-  const [user, setUser]         = useState(null)
-  const [accounts, setAccounts] = useState([])
-  const [editing, setEditing]   = useState(false)
-  const [newName, setNewName]   = useState('')
-  const navigate                = useNavigate()
+// src/pages/Profile/index.jsx
+import { useEffect, useState }      from 'react'
+import { useNavigate }              from 'react-router-dom'
+import { useSelector, useDispatch } from 'react-redux'
 
+import {
+  fetchProfile,
+  updateProfileName,
+  setAccounts,
+  clearProfile
+} from '../../features/profile/profileSlice'
+import { clearToken }               from '../../features/auth/authSlice'
+
+import Header        from '../../composants/Header'
+import Footer        from '../../composants/Footer'
+import AccountCard   from '../../composants/AccountCard'
+import './profile.css'
+
+export default function ProfilePage() {
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
+
+  // — Récupération du token, du profil, etc. depuis Redux
+  const token    = useSelector(state => state.auth.token)
+  const user     = useSelector(state => state.profile.data)
+  const accounts = useSelector(state => state.profile.accounts)
+  const status   = useSelector(state => state.profile.status)
+  const error    = useSelector(state => state.profile.error)
+
+  // État local pour l’édition du nom
+  const [editing, setEditing] = useState(false)
+  const [newName, setNewName] = useState('')
+
+  // 1) Si pas de token → redirection vers /login, sinon on charge le profil
   useEffect(() => {
-    const token = localStorage.getItem('authToken')
-
-    // Si pas de token, on renvoie au login
     if (!token) {
       navigate('/login')
-      return
+    } else {
+      dispatch(fetchProfile())
     }
+  }, [token, dispatch, navigate])
 
-    // Appel GET /user/profile avec Fetch
-    fetch('http://localhost:3001/api/v1/user/profile', {
-      method:  'GET',
-      headers: {
-        'Content-Type':  'application/json',
-        'Authorization': `Bearer ${token}`,
-      },
-    })
-      .then(res => {
-        if (!res.ok) {
-          // Si le serveur renvoie 401 ou un autre code, on renvoie au login
-          throw new Error(`Statut ${res.status}`)
-        }
-        return res.json()
-      })
-      .then(data => {
-        // data.body contient l’objet user
-        const profile = data.body
-        setUser(profile)
-        setNewName(profile.userName || profile.firstName)
+  // 2) Dès que `user` arrive, on pré-remplit l’input et on simule les comptes
+  useEffect(() => {
+    if (user) {
+      setNewName(user.userName || '')
+      if (accounts.length === 0) {
+        dispatch(setAccounts([
+          { id: 1, title: 'Checking (x8349)',   amount: '$2,082.79', desc: 'Available Balance' },
+          { id: 2, title: 'Savings  (x6712)',   amount: '$10,928.42', desc: 'Available Balance' },
+          { id: 3, title: 'Credit Card (x8349)', amount: '$184.30',   desc: 'Current Balance' },
+        ]))
+      }
+    }
+  }, [user, accounts.length, dispatch])
 
-        // Si ton back ne renvoie pas les comptes,
-        // simule-les comme avant :
-        setAccounts([
-          { id: 1, title: 'Checking (x8349)', amount: '$2,082.79', desc: 'Available Balance' },
-          { id: 2, title: 'Savings (x6712)',  amount: '$10,928.42', desc: 'Available Balance' },
-          { id: 3, title: 'Credit Card (x8349)', amount: '$184.30',  desc: 'Current Balance' },
-        ])
-      })
-      .catch(err => {
-        console.error('Impossible de récupérer le profil', err)
-        navigate('/login')
-      })
-  }, [navigate])
-
-  // Fonction pour sauvegarder le nouveau nom
-  function handleSave() {
-    const token = localStorage.getItem('authToken')
-    if (!token) return
-
-    fetch('http://localhost:3001/api/v1/user/profile', {
-      method:  'PUT',
-      headers: {
-        'Content-Type':  'application/json',
-        'Authorization': `Bearer ${token}`,
-      },
-      body: JSON.stringify({ username: newName }),
-    })
-      .then(res => {
-        if (!res.ok) throw new Error(`Statut ${res.status}`)
-        return res.json()
-      })
-      .then(() => {
-        setUser(prev => ({ ...prev, userName: newName }))
-        setEditing(false)
-      })
-      .catch(err => {
-        console.error('Erreur lors de la mise à jour du nom', err)
-      })
+  // 3) Déconnexion
+  const handleLogout = () => {
+    dispatch(clearToken())
+    dispatch(clearProfile())
+    navigate('/login')
   }
 
-  if (!user) {
-    return <p>Chargement du profil…</p>
-  }
+  // 4) Sauvegarde du nouveau nom via le thunk updateProfileName
+const handleSave = () => {
+  if (!newName.trim()) return
+  dispatch(updateProfileName(newName))
+    .unwrap()
+    .then(() => {
+      // on a bien écrit en base userName = "Iron" → on recharge
+      return dispatch(fetchProfile())
+    })
+    .catch(console.error)
+    .finally(() => setEditing(false))
+}
+
+  // — Affichage des loaders / guards
+  if (status === 'loading') return <p>Chargement du profil…</p>
+  if (!user) return null
 
   return (
     <>
-      <Header userName={user.userName || user.firstName} />
+      {/* Le Header lit token & user dans le store pour afficher Sign Out + userName */}
+      <Header onLogout={handleLogout} />
 
       <main className="page-container">
         <section className="profile-header">
           <h1>
-            Welcome back
-            <br />
+            Welcome back<br/>
             {user.firstName} {user.lastName}!
           </h1>
 
           {editing ? (
             <div className="edit-name">
+              {/* name="username" indispensable pour votre thunk */}
               <input
+                name="username"
                 type="text"
                 value={newName}
                 onChange={e => setNewName(e.target.value)}
@@ -113,6 +108,8 @@ export default function Profile() {
               Edit Name
             </button>
           )}
+
+          {error && <p className="profile-error">{error}</p>}
         </section>
 
         <h2 className="sr-only">Accounts</h2>
@@ -122,9 +119,7 @@ export default function Profile() {
             title={acct.title}
             amount={acct.amount}
             desc={acct.desc}
-            onView={() => {
-              /* future navigation vers /transactions/… */
-            }}
+            onView={() => {/* navigation future */}}
           />
         ))}
       </main>
