@@ -1,0 +1,144 @@
+openapi: 3.0.0
+info:
+  title: Argent Bank Transactions API
+  version: 1.0.0
+  description: API pour accéder, consulter et modifier les transactions d’un compte utilisateur.
+
+paths:
+  /profile/accounts:
+    get:
+      summary: Obtenir tous les comptes de l'utilisateur
+      description: Retourne la liste de tous les comptes de l'utilisateur connecté.
+      responses:
+        '200':
+          description: Liste des comptes utilisateur
+        '401':
+          description: Non autorisé
+
+  /profile/accounts/{accountId}:
+    get:
+      summary: Obtenir les détails d'un compte
+      description: Retourne les informations détaillées d'un compte spécifique.
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          description: ID du compte
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Détails du compte
+        '404':
+          description: Compte introuvable
+        '401':
+          description: Non autorisé
+
+  /profile/accounts/{accountId}/transactions:
+    get:
+      summary: Obtenir les transactions d'un compte avec filtres
+      description: Retourne les transactions du compte, avec filtres optionnels par catégorie, tri, pagination, etc.
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          description: ID du compte
+          schema:
+            type: string
+        - name: category
+          in: query
+          required: false
+          description: Catégorie de transaction à filtrer
+          schema:
+            type: string
+        - name: sortBy
+          in: query
+          required: false
+          description: Champ pour le tri 
+          schema:
+            type: string
+        - name: order
+          in: query
+          required: false
+          description: Ordre du tri 
+          schema:
+            type: string
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Liste des transactions filtrées
+        '404':
+          description: Compte introuvable
+        '401':
+          description: Non autorisé
+
+  /profile/accounts/{accountId}/transactions/{transactionId}:
+    get:
+      summary: Détails d'une transaction
+      description: Retourne les détails d'une transaction précise.
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: transactionId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Détails de la transaction
+        '404':
+          description: Transaction non trouvée
+        '401':
+          description: Non autorisé
+
+    put:
+      summary: Modifier une transaction
+      description: Met à jour les informations d'une transaction.
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: transactionId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                amount:
+                  type: number
+                notes:
+                  type: string
+                reimbursable:
+                  type: boolean
+      responses:
+        '200':
+          description: Transaction mise à jour
+        '400':
+          description: Données invalides
+        '404':
+          description: Transaction non trouvée
+        '401':
+          description: Non autorisé
