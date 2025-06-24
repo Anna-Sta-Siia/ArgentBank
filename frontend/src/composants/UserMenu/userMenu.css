@@ -1,6 +1,14 @@
-.main-nav-item button {
+.main-nav-item {
   background: none;
   border: none;
+  color: var(--color-text); /* ou #2c3e50 par exemple */
   font: inherit;
-  color: var(--color-text);
+  cursor: pointer;
+  text-decoration: none;
+  padding: 0;
+  margin-left: 1rem;
+}
+
+.main-nav-item:hover {
+  text-decoration: underline;
 }

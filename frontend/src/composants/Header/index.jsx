@@ -19,19 +19,17 @@ export default function Header() {
 
   return (
     <nav className="main-nav">
-      <Link to="/" className="main-nav-logo">
+       
         <Logo />
-      </Link>
 
       <div>
         {token ? (
           <>
-            <span className="main-nav-item">
-              <i className="fa fa-user-circle" />{' '}
-              {/* Affiche Captain (userName), 
-                  ou si absent, tombera sur Steve (firstName) */}
-              {user ? user.userName : ''}
-            </span>
+            <Link className="main-nav-item" to="/profile">
+  <i className="fa fa-user-circle" />{' '}
+  {user ? user.userName : ''}
+</Link>
+
             <button className="main-nav-item" onClick={handleLogout}>
               <i className="fa fa-sign-out" /> Sign Out
             </button>

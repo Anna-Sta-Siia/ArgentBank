@@ -4,7 +4,7 @@ import Banner from '../../composants/Banner'
 import Features from '../../composants/Features'
 import Footer from '../../composants/Footer'
 
-import savingsImage from '../../assets/img/bank-tree.jpeg'
+import savingsImage from '../../assets/img/bank-tree.webp'
 import iconChat from '../../assets/img/icon-chat.png'
 import iconMoney from '../../assets/img/icon-money.png'
 import iconSecurity from '../../assets/img/icon-security.png'

@@ -5,6 +5,7 @@ import Home      from './pages/Home'
 import LoginPage from './pages/Login'
 import Profile   from './pages/Profile'
 import PrivateRoute from './composants/PrivateRoute'
+import NotFound from './pages/Notfound'
 
 export default function App() {
   return (
@@ -21,6 +22,7 @@ export default function App() {
           </PrivateRoute>
         }
       />
+      <Route path="*" element={<NotFound />} />
     </Routes>
   )
 }

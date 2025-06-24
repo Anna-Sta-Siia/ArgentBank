@@ -4,23 +4,27 @@
   margin-top: 16px;
 }
 .login-page {
+  align-items: center;
+  padding: 3rem 1rem 12rem 1rem;
+  background-color:#2c3e50;
+}
+
+.login-containeur {
+  width:25% ;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 4rem 1rem;
   background-color: white;
 }
-
-
 /* Icone et titre alignés */
 .login-icon {
-  font-size: 72px;
-  color: #00bc77;
-  margin-bottom: 2.5rem;
+  font-size: 18px;
+  color: #2c3e50;
+  margin: 1.5rem 0;
 }
 
 .login-title {
-  font-size: 44px;
+  font-size: 24px;
   color: #2c3e50;
   text-align: center;
   font-weight: bold;
@@ -42,3 +46,26 @@
 .login-button:focus {
   background-color: #00a369;
 }
+.login-error {
+  min-height: 1.5rem; /* Réserve la place même sans message */
+  margin: 0.5rem 0;
+  text-align: center;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: opacity 0.3s ease;
+}
+
+.login-error.hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.login-error.visible {
+  opacity: 1;
+  visibility: visible;
+  color: #e74c3c;
+  background-color: #ffe6e6;
+  border: 1px solid #e0b4b4;
+  border-radius: 5px;
+}
+

@@ -4,7 +4,7 @@ import './accountCard.css'
 
 export default function AccountCard({ title, amount, desc, onView }) {
   return (
-    <section className="account-card">
+    <div className="account-card">
       <div className="account-card-details">
         <h3 className="account-card-title">{title}</h3>
         <p className="account-card-amount">{amount}</p>
@@ -15,7 +15,7 @@ export default function AccountCard({ title, amount, desc, onView }) {
           View transactions
         </button>
       </div>
-    </section>
+    </div>
   )
 }
 

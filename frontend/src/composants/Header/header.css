@@ -3,7 +3,7 @@
   justify-content: space-between;
   align-items: center;
   background: white;
-  padding: 1rem 2rem;
+  padding: 0 2rem;
   border-bottom: 1px solid var(--color-gray-lighter);
   z-index: 1000;
 }
@@ -16,6 +16,12 @@
 
 
 .main-nav-item {
+    background: none;
+  border: none;
+  color: var(--color-text); /* ou #2c3e50 par exemple */
+  font: inherit;
+  cursor: pointer;
+  text-decoration: none;
+  padding: 0;
   margin-left: 1rem;
-  color: var(--color-text);
 }

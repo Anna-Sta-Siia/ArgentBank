@@ -83,7 +83,7 @@ const handleSave = () => {
       {/* Le Header lit token & user dans le store pour afficher Sign Out + userName */}
       <Header onLogout={handleLogout} />
 
-      <main className="page-container">
+      <main className="pageofprofile-container">
         <section className="profile-header">
           <h1>
             Welcome back<br/>
@@ -111,7 +111,7 @@ const handleSave = () => {
 
           {error && <p className="profile-error">{error}</p>}
         </section>
-
+        <section className='accounts'>
         <h2 className="sr-only">Accounts</h2>
         {accounts.map(acct => (
           <AccountCard
@@ -122,6 +122,7 @@ const handleSave = () => {
             onView={() => {/* navigation future */}}
           />
         ))}
+        </section>
       </main>
 
       <Footer />

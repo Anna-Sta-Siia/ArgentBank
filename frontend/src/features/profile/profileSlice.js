@@ -1,4 +1,3 @@
-// src/features/profile/profileSlice.js
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 
 // On récupère l’URL de l’API depuis .env ou on tombe sur localhost:3001
@@ -40,7 +39,7 @@ export const updateProfileName = createAsyncThunk(
         'Content-Type':  'application/json',
         Authorization:   `Bearer ${token}`,
       },
-      body: JSON.stringify({ username: newName }),
+      body: JSON.stringify({ userName: newName }),
     })
     if (!res.ok) {
       const text = await res.text()
@@ -91,10 +90,14 @@ const profileSlice = createSlice({
         state.status = 'loading'
         state.error  = null
       })
-      .addCase(updateProfileName.fulfilled, (state, action) => {
-        state.status = 'succeeded'
-        state.data   = action.payload  // on remplace tout l'objet user
-      })
+     .addCase(updateProfileName.fulfilled, (state, action) => {
+  state.status = 'succeeded'
+  state.data = {
+    ...state.data,         // garde les anciens champs
+    ...action.payload      // écrase avec les nouveaux reçus
+  }
+})
+
       .addCase(updateProfileName.rejected, (state, action) => {
         state.status = 'failed'
         state.error  = action.payload || action.error.message

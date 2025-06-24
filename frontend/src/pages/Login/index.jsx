@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
 import { setToken }    from '../../features/auth/authSlice'
 import { fetchProfile }from '../../features/profile/profileSlice'
-import Logo            from '../../composants/Logo'
+import Header           from '../../composants/Header'
 import Footer          from '../../composants/Footer'
 import Form            from '../../composants/Form'
 import './login.css'
@@ -61,13 +61,13 @@ export default function LoginPage() {
 
   return (
     <>
-      <Logo />
+      <Header />
 
       <main className="login-page">
+        <div className='login-containeur'>
         <i className="fa fa-user-circle sign-in-icon login-icon" aria-hidden="true" />
         <h2 className="login-title">Sign In</h2>
-        {error && <p className="login-error">{error}</p>}
-
+        
         <Form onSubmit={handleSubmit}>
           <label htmlFor="email">Username</label>
           <input
@@ -86,7 +86,9 @@ export default function LoginPage() {
             required
             autoComplete="current-password"
           />
-
+<p className={`login-error ${error ? 'visible' : 'hidden'}`}>
+  {error || ' '} {/* Petit espace pour éviter le saut brutal */}
+</p>
           <div className="login-remember">
             <input
               id="remember"
@@ -103,6 +105,7 @@ export default function LoginPage() {
             Sign In
           </button>
         </Form>
+        </div>
       </main>
 
       <Footer />
