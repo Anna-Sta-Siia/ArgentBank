@@ -16,7 +16,12 @@
   text-decoration: none;
   padding: 0;
   margin-left: 1rem;
+  font-weight: bold;
 }
+.main-nav-item:hover {
+  text-decoration: underline;
+}
+
 @media (max-width: 768px) {
   .main-nav {
     padding: 0 0.5rem;

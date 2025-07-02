@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { setToken } from '../../features/auth/authSlice';
-import { fetchProfile } from '../../features/profile/profileSlice';
+import { setToken } from '../../slices/auth/authSlice';
+import { fetchProfile } from '../../slices/profile/profileSlice';
 import Header from '../../composants/Header';
 import Footer from '../../composants/Footer';
 import Form from '../../composants/Form';

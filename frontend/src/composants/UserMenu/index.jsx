@@ -1,14 +1,13 @@
-import { Link, useNavigate } from 'react-router-dom'
-import './userMenu.css'
+import { Link, useNavigate } from 'react-router-dom';
 
 export default function UserMenu({ userName }) {
-  const navigate = useNavigate()
-  const token = localStorage.getItem('authToken')
+  const navigate = useNavigate();
+  const token = localStorage.getItem('authToken');
 
   const handleSignOut = () => {
-    localStorage.removeItem('authToken')
-    navigate('/login')
-  }
+    localStorage.removeItem('authToken');
+    navigate('/login');
+  };
 
   return token ? (
     <>
@@ -27,5 +26,5 @@ export default function UserMenu({ userName }) {
     <Link className="main-nav-item" to="/login">
       <i className="fa fa-user-circle" /> Sign In
     </Link>
-  )
+  );
 }

@@ -52,13 +52,11 @@ textarea {
   align-items: center;
   background: white;
   padding: 0 2rem;
-  border-bottom: 1px solid var(--color-gray-lighter);
+  margin-top: 16px;
 }
 
 /* 7. Footer toujours en bas */
 .footer {
-  background: var(--color-gray-lighter);
-  text-align: center;
   padding: 2rem;
   margin-top: auto;
 }

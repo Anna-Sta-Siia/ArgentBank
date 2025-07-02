@@ -8,8 +8,8 @@ import {
   updateProfileName,
   setAccounts,
   clearProfile,
-} from '../../features/profile/profileSlice';
-import { clearToken } from '../../features/auth/authSlice';
+} from '../../slices/profile/profileSlice';
+import { clearToken } from '../../slices/auth/authSlice';
 
 import Header from '../../composants/Header';
 import Footer from '../../composants/Footer';
