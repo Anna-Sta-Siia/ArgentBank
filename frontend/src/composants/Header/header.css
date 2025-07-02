@@ -1,9 +1,4 @@
 .main-nav {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: white;
-  padding: 0 2rem;
   z-index: 1000;
 }
 
@@ -21,4 +16,9 @@
   text-decoration: none;
   padding: 0;
   margin-left: 1rem;
+}
+@media (max-width: 768px) {
+  .main-nav {
+    padding: 0 0.5rem;
+  }
 }

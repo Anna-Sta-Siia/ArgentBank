@@ -6,3 +6,9 @@
   padding: 0 2rem;
   border-bottom: 1px solid var(--color-gray-lighter);
 }
+@media (max-width: 768px) {
+  .features {
+    flex-direction: column;
+    gap: 0;
+  }
+}

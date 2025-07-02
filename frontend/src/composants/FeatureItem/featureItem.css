@@ -23,3 +23,11 @@
   font-size: 20px;
   text-align: center;
 }
+@media (max-width: 768px) {
+  .feature-item {
+    padding: 1.5rem;
+  }
+  .feature-icon {
+    width: 120px;
+  }
+}

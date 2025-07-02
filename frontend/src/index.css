@@ -89,3 +89,8 @@ img {
 .form-container input:not(:placeholder-shown) {
   background-color: var(--color-gray-lighter);
 }
+@media (max-width: 768px) {
+  p {
+    font-size: 12px;
+  }
+}

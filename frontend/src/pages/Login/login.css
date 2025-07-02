@@ -3,7 +3,6 @@
   margin-top: 16px;
 }
 .login-page {
-  align-items: center;
   padding: 3rem 1rem 12rem 1rem;
   background-color: var(--color-secondary-dark);
 }
@@ -50,4 +49,17 @@
   background-color: #ffe6e6;
   border: 1px solid #e0b4b4;
   border-radius: 5px;
+}
+@media (max-width: 1024px) {
+  .login-containeur {
+    width: 35%;
+  }
+}
+@media (max-width: 768px) {
+  .login-page {
+    padding: 3rem 0 12rem 0;
+  }
+  .login-containeur {
+    width: 50%;
+  }
 }

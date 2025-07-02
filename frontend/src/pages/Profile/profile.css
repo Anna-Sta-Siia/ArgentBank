@@ -30,15 +30,11 @@
   border-color: var(--color-primary-green);
   padding: 10px;
   cursor: pointer;
-  border-radius: 4px;
   font-size: 14px;
   font-weight: bold;
   margin-top: 1rem;
 }
 
-.edit-button:hover {
-  background-color: var(--color-primary-green);
-}
 .accounts {
   display: flex;
   flex-direction: column;
