@@ -1,21 +1,32 @@
 import { createSlice } from '@reduxjs/toolkit'
 
-// ➊ On initialise depuis localStorage pour rester connecté après reload
-const initialToken = localStorage.getItem('authToken') || null
+// ➊ Chargement du token au démarrage depuis les deux stockages
+const initialToken = sessionStorage.getItem('authToken') 
+  || localStorage.getItem('authToken') 
+  || null
 
 const authSlice = createSlice({
   name: 'auth',
   initialState: { token: initialToken },
   reducers: {
-    // ➋ stocke le token après login
+    // ➋ Stocke le token, avec payload = { token: string, remember: boolean }
     setToken: (state, action) => {
-      state.token = action.payload
-      localStorage.setItem('authToken', action.payload)
+      const { token, remember } = action.payload
+      state.token = token
+
+      if (remember) {
+        localStorage.setItem('authToken', token)
+        sessionStorage.removeItem('authToken')
+      } else {
+        sessionStorage.setItem('authToken', token)
+        localStorage.removeItem('authToken')
+      }
     },
-    // ➌ supprime tout au logout
+    // ➌ Supprime le token des deux stockages au logout
     clearToken: (state) => {
       state.token = null
       localStorage.removeItem('authToken')
+      sessionStorage.removeItem('authToken')
     },
   },
 })

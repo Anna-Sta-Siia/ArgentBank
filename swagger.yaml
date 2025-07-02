@@ -1,90 +1,396 @@
 openapi: 3.0.0
 info:
-  title: Argent Bank Transactions API
+  title: Bank Argent API documentation
+  description: Complete API documentation including user, transaction, and categories endpoints.
   version: 1.0.0
-  description: API pour accéder, consulter et modifier les transactions d’un compte utilisateur.
+
+servers:
+  - url: http://localhost:3001/api/v1
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    User:
+      type: object
+      properties:
+        email:
+          type: string
+          description: User email address
+        password:
+          type: string
+          description: User password
+        firstName:
+          type: string
+          description: User first name
+        lastName:
+          type: string
+          description: User last name
+        userName:
+          type: string
+          description: User public name
+
+    Login:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+
+    ApiResponse:
+      type: object
+      properties:
+        status:
+          type: integer
+        message:
+          type: string
+        body:
+          type: object
+          properties:
+            id:
+              type: string
+            email:
+              type: string
+
+    LoginResponse:
+      type: object
+      properties:
+        token:
+          type: string
+
+    UserProfile:
+      type: object
+      properties:
+        userName:
+          type: string
+
+    Account:
+      type: object
+      properties:
+        accountId:
+          type: string
+          example: "456def"
+        accountType:
+          type: string
+          example: "Checking"
+        balance:
+          type: number
+          format: float
+          example: 48098.43
+        currency:
+          type: string
+          example: "USD"
+
+    Transaction:
+      type: object
+      properties:
+        transactionId:
+          type: string
+          example: "123abc"
+        accountId:
+          type: string
+          example: "456def"
+        date:
+          type: string
+          format: date
+          example: "2025-07-10"
+        description:
+          type: string
+          example: "Golden Sun Bakery"
+        category:
+          type: string
+          example: "Food"
+        note:
+          type: string
+          example: "lorem ipsum"
+        amount:
+          type: number
+          format: float
+          example: 8.00
+        balance:
+          type: number
+          format: float
+          example: 290.00
+
+    UpdateTransactionInput:
+      type: object
+      properties:
+        category:
+          type: string
+          description: Category must be one of those returned by GET /categories
+          example: Food
+        note:
+          type: string
+          example: "lorem ipsum"
+      required:
+        - category
+        - note
+
+    CategoryInput:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "Travel"
+      required:
+        - name
 
 paths:
-  /profile/accounts:
-    get:
-      summary: Obtenir tous les comptes de l'utilisateur
-      description: Retourne la liste de tous les comptes de l'utilisateur connecté.
+  /user/login:
+    post:
+      tags:
+        - User Module
+      summary: Login
+      description: API for logging in a user
+      requestBody:
+        description: Login payload
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Login'
       responses:
         '200':
-          description: Liste des comptes utilisateur
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '400':
+          description: Invalid Fields
+        '500':
+          description: Internal Server Error
+
+  /user/signup:
+    post:
+      tags:
+        - User Module
+      summary: Signup
+      description: API for signing up a new user
+      requestBody:
+        description: Signup payload
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          description: Signup successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '400':
+          description: Invalid Fields
+        '500':
+          description: Internal Server Error
+
+  /user/profile:
+    get:
+      security:
+        - BearerAuth: []
+      tags:
+        - User Module
+      summary: User Profile API
+      description: API for fetching a user profile. Authentication required.
+      responses:
+        '200':
+          description: User profile retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '400':
+          description: Invalid Fields
+        '500':
+          description: Internal Server Error
+    put:
+      security:
+        - BearerAuth: []
+      tags:
+        - User Module
+      summary: User Profile API
+      description: API for updating a user profile. Authentication required.
+      requestBody:
+        description: Update user profile attributes
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserProfile'
+      responses:
+        '200':
+          description: User profile updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '400':
+          description: Invalid Fields
+        '500':
+          description: Internal Server Error
+
+  /profile/accounts:
+    get:
+      security:
+        - BearerAuth: []
+      summary: Get all user accounts
+      description: API for fetching the list of all accounts of the user. Authentication required.
+      responses:
+        '200':
+          description: List of user accounts retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Account'
+              example:
+                - accountId: "456def"
+                  accountType: "Checking"
+                  balance: 48098.43
+                  currency: "USD"
+                - accountId: "789ghi"
+                  accountType: "Savings"
+                  balance: 15000.00
+                  currency: "USD"
         '401':
-          description: Non autorisé
+          description: Unauthorized - Authentication required
+        '500':
+          description: Internal Server Error
 
   /profile/accounts/{accountId}:
     get:
-      summary: Obtenir les détails d'un compte
-      description: Retourne les informations détaillées d'un compte spécifique.
+      security:
+        - BearerAuth: []
+      summary: Get account details
+      description: API for fetching detailed information of a specific account. Authentication required.
       parameters:
         - name: accountId
           in: path
           required: true
-          description: ID du compte
+          description: Account ID
           schema:
             type: string
       responses:
         '200':
-          description: Détails du compte
+          description: Account details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+              example:
+                accountId: "456def"
+                accountType: "Checking"
+                balance: 48098.43
+                currency: "USD"
         '404':
-          description: Compte introuvable
+          description: Account not found
         '401':
-          description: Non autorisé
+          description: Unauthorized - Authentication required
+        '500':
+          description: Internal Server Error
 
   /profile/accounts/{accountId}/transactions:
     get:
-      summary: Obtenir les transactions d'un compte avec filtres
-      description: Retourne les transactions du compte, avec filtres optionnels par catégorie, tri, pagination, etc.
+      security:
+        - BearerAuth: []
+      summary: Get transactions for an account with optional filters
+      description: API for fetching transactions of a specific account with optional filters. Authentication required.
       parameters:
         - name: accountId
           in: path
           required: true
-          description: ID du compte
+          description: Account ID
           schema:
             type: string
         - name: category
           in: query
           required: false
-          description: Catégorie de transaction à filtrer
+          description: Filter transactions by category
           schema:
             type: string
+        - name: month
+          in: query
+          required: false
+          description: Filter transactions by month (format YYYY-MM, e.g. 2025-07)
+          schema:
+            type: string
+            pattern: '^\d{4}-(0[1-9]|1[0-2])$'
         - name: sortBy
           in: query
           required: false
-          description: Champ pour le tri 
+          description: Field to sort by
           schema:
             type: string
+            enum: [date, amount]
         - name: order
           in: query
           required: false
-          description: Ordre du tri 
+          description: Sort order
           schema:
             type: string
+            enum: [asc, desc]
         - name: page
           in: query
           required: false
+          description: Page number for pagination
           schema:
             type: integer
+            minimum: 1
         - name: limit
           in: query
           required: false
+          description: Number of transactions per page
           schema:
             type: integer
+            minimum: 1
+            maximum: 100
       responses:
         '200':
-          description: Liste des transactions filtrées
+          description: List of filtered transactions retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Transaction'
+              example:
+                - transactionId: "123abc"
+                  accountId: "456def"
+                  date: "2025-07-10"
+                  description: "Golden Sun Bakery"
+                  category: "Food"
+                  note: "Lunch"
+                  amount: 8.00
+                  balance: 290.00
+                - transactionId: "124bcd"
+                  accountId: "456def"
+                  date: "2025-07-15"
+                  description: "Coffee Shop"
+                  category: "Beverages"
+                  note: "Morning coffee"
+                  amount: 3.50
+                  balance: 286.50
         '404':
-          description: Compte introuvable
+          description: Account not found
         '401':
-          description: Non autorisé
+          description: Unauthorized - Authentication required
+        '500':
+          description: Internal Server Error
 
   /profile/accounts/{accountId}/transactions/{transactionId}:
     get:
-      summary: Détails d'une transaction
-      description: Retourne les détails d'une transaction précise.
+      security:
+        - BearerAuth: []
+      summary: Get transaction details
+      description: API for fetching details of a specific transaction. Authentication required.
       parameters:
         - name: accountId
           in: path
@@ -98,15 +404,35 @@ paths:
             type: string
       responses:
         '200':
-          description: Détails de la transaction
+          description: Transaction details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+              example:
+                transactionId: "123abc"
+                accountId: "456def"
+                date: "2025-07-10"
+                description: "Golden Sun Bakery"
+                category: "Food"
+                note: "Lunch"
+                amount: 8.00
+                balance: 290.00
         '404':
-          description: Transaction non trouvée
+          description: Transaction not found
         '401':
-          description: Non autorisé
+          description: Unauthorized - Authentication required
+        '500':
+          description: Internal Server Error
 
     put:
-      summary: Modifier une transaction
-      description: Met à jour les informations d'une transaction.
+      security:
+        - BearerAuth: []
+      summary: Update category and note of a specific transaction
+      description: |
+        API for updating the category and note of a specific transaction.  
+        The category must be one of those returned by GET /categories.  
+        Authentication required.
       parameters:
         - name: accountId
           in: path
@@ -119,26 +445,135 @@ paths:
           schema:
             type: string
       requestBody:
+        description: Object containing fields to update (only category and note)
         required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                title:
-                  type: string
-                amount:
-                  type: number
-                notes:
-                  type: string
-                reimbursable:
-                  type: boolean
+              $ref: '#/components/schemas/UpdateTransactionInput'
+            example:
+              category: "Food"
+              note: "lorem ipsum"
       responses:
         '200':
-          description: Transaction mise à jour
+          description: Transaction successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+              example:
+                transactionId: "123abc"
+                accountId: "456def"
+                date: "2025-07-10"
+                description: "Golden Sun Bakery"
+                category: "Food"
+                note: "lorem ipsum"
+                amount: 8.00
+                balance: 290.00
         '400':
-          description: Données invalides
-        '404':
-          description: Transaction non trouvée
+          description: Invalid Fields
         '401':
-          description: Non autorisé
+          description: Unauthorized - Authentication required
+        '404':
+          description: Transaction not found
+        '500':
+          description: Internal Server Error
+
+  /categories:
+    get:
+      security:
+        - BearerAuth: []
+      summary: Get list of valid transaction categories
+      description: API for fetching the list of all valid categories available for transactions. Authentication required.
+      responses:
+        '200':
+          description: List of categories retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+              example:
+                - Food
+                - Travel
+                - Utilities
+                - Entertainment
+                - Health
+        '401':
+          description: Unauthorized - Authentication required
+        '500':
+          description: Internal Server Error
+
+    post:
+      security:
+        - BearerAuth: []
+      summary: Create a new transaction category
+      description: API for creating a new category. Authentication required.
+      requestBody:
+        description: Category object to create
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoryInput'
+      responses:
+        '201':
+          description: Category created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Category created successfully"
+        '400':
+          description: Invalid input data
+        '401':
+          description: Unauthorized - Authentication required
+        '403':
+          description: Forbidden - Admin rights required
+        '500':
+          description: Internal Server Error
+
+  /categories/{categoryId}:
+    put:
+      security:
+        - BearerAuth: []
+      summary: Update an existing transaction category
+      description: API for updating a category. Authentication required.
+      parameters:
+        - name: categoryId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Category object with updated fields
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoryInput'
+      responses:
+        '200':
+          description: Category updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Category updated successfully"
+        '400':
+          description: Invalid input data
+        '401':
+          description: Unauthorized - Authentication required
+        '403':
+          description: Forbidden - Admin rights required
+        '404':
+          description: Category not found
+        '500':
+          description: Internal Server Error

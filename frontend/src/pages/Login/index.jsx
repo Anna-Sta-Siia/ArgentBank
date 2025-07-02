@@ -1,4 +1,3 @@
-// src/pages/Login/index.jsx
 import { useState }    from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
@@ -22,7 +21,7 @@ export default function LoginPage() {
     const remember = form.remember.checked
 
     try {
-      // 1️⃣ Login pour récupérer le token
+      // Login pour récupérer le token
       const resp = await fetch('http://localhost:3001/api/v1/user/login', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -38,20 +37,15 @@ export default function LoginPage() {
         throw new Error('Token manquant dans la réponse')
       }
 
-      // 2️⃣ Stockage du token dans Redux
-      dispatch(setToken(token))
+      //  Stockage du token dans Redux
+      dispatch(setToken({ token, remember }))
 
-      // 3️⃣ Chargement du profil (déclenche fetchProfile)
+
+      // Chargement du profil (déclenche fetchProfile)
       await dispatch(fetchProfile()).unwrap()
 
-      // 4️⃣ Persistance selon “Remember me”
-      if (remember) {
-        localStorage.setItem('authToken', token)
-      } else {
-        sessionStorage.setItem('authToken', token)
-      }
 
-      // 5️⃣ Redirection vers la page protégée
+      //  Redirection vers la page protégée
       navigate('/profile')
     } catch (err) {
       console.error(err)
