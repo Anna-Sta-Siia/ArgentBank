@@ -1,6 +1,5 @@
-
-import PropTypes from 'prop-types'
-import './accountCard.css'
+import PropTypes from 'prop-types';
+import './accountCard.css';
 
 export default function AccountCard({ title, amount, desc, onView }) {
   return (
@@ -16,12 +15,12 @@ export default function AccountCard({ title, amount, desc, onView }) {
         </button>
       </div>
     </div>
-  )
+  );
 }
 
 AccountCard.propTypes = {
-  title:   PropTypes.string.isRequired,
-  amount:  PropTypes.string.isRequired,
-  desc:    PropTypes.string.isRequired,
-  onView:  PropTypes.func,
-}
+  title: PropTypes.string.isRequired,
+  amount: PropTypes.string.isRequired,
+  desc: PropTypes.string.isRequired,
+  onView: PropTypes.func,
+};

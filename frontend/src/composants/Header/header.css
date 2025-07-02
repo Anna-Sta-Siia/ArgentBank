@@ -4,21 +4,18 @@
   align-items: center;
   background: white;
   padding: 0 2rem;
-  border-bottom: 1px solid var(--color-gray-lighter);
   z-index: 1000;
 }
-
 
 .main-nav-logo {
   display: flex;
   align-items: center;
 }
 
-
 .main-nav-item {
-    background: none;
+  background: none;
   border: none;
-  color: var(--color-text); /* ou #2c3e50 par exemple */
+  color: var(--color-text);
   font: inherit;
   cursor: pointer;
   text-decoration: none;

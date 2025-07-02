@@ -1,12 +1,13 @@
 .main-nav-item {
   background: none;
   border: none;
-  color: var(--color-text); /* ou #2c3e50 par exemple */
+  color: var(--color-text);
   font: inherit;
   cursor: pointer;
   text-decoration: none;
   padding: 0;
   margin-left: 1rem;
+  font-weight: bold;
 }
 
 .main-nav-item:hover {
