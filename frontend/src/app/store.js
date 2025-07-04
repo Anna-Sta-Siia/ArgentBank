@@ -7,4 +7,12 @@ export const store = configureStore({
     auth: authReducer,
     profile: profileReducer,
   },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().prepend([
+      // Middleware personnalisé qui logue chaque action
+      () => (next) => (action) => {
+        console.log('Action dispatchée :', action);
+        return next(action);
+      },
+    ]),
 });
