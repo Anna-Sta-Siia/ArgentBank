@@ -30,6 +30,10 @@ main {
   align-items: center;
   justify-content: center;
 }
+/* 3.2 La page Profile*/
+.pageofprofile-container {
+  background-color: #12002b;
+}
 /* 4. Boutons génériques */
 button {
   font-family: inherit;
