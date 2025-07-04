@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react'; // ajoute useEffect ici
 import { useDispatch } from 'react-redux';
 import {
   updateProfileName,
@@ -7,18 +7,22 @@ import {
 import './profileHeader.css';
 
 export default function ProfileHeader({ user, error }) {
-  // État local pour l’édition du nom
   const [editing, setEditing] = useState(false);
   const [newName, setNewName] = useState('');
   const dispatch = useDispatch();
-  // Sauvegarde du nouveau nom via le thunk updateProfileName
+
+  // Initialiser newName avec userName quand on passe en édition
+  useEffect(() => {
+    if (editing && user) {
+      setNewName(user.userName || '');
+    }
+  }, [editing, user]);
+
   const handleSave = () => {
     if (!newName.trim()) return;
     dispatch(updateProfileName(newName))
       .unwrap()
-      .then(() => {
-        return dispatch(fetchProfile());
-      })
+      .then(() => dispatch(fetchProfile()))
       .catch(console.error)
       .finally(() => setEditing(false));
   };
