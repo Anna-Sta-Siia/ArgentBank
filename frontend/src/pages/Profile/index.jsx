@@ -13,7 +13,7 @@ import './profile.css';
 export default function ProfilePage() {
   const dispatch = useDispatch();
 
-  // — Récupération du token, du profil, etc. depuis Redux
+  // — Récupération depuis Redux
   const user = useSelector((state) => state.profile.data);
   const accounts = useSelector((state) => state.profile.accounts);
   const status = useSelector((state) => state.profile.status);
