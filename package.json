@@ -7,10 +7,13 @@
   ],
   "scripts": {
     "start:backend": "npm --prefix backend run dev:server",
-    "start:frontend": "npm --prefix frontend run dev"
+    "start:frontend": "npm --prefix frontend run dev",
+    "predeploy": "npm --prefix frontend run build && cp frontend/dist/index.html frontend/dist/404.html",
+  "deploy": "gh-pages -d frontend/dist"
   },
   "devDependencies": {
     "concurrently": "^9.1.2",
+    "gh-pages": "^6.3.0",
     "prettier": "^3.6.2"
   }
 }
