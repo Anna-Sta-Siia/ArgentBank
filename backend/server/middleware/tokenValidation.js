@@ -1,25 +1,23 @@
-const jwt = require('jsonwebtoken')
-const { restart } = require('nodemon')
+// backend/server/middleware/tokenValidation.js
+const jwt = require('jsonwebtoken');
+
+const SECRET = process.env.SECRET_KEY || 'default-secret-key';
 
 module.exports.validateToken = (req, res, next) => {
-  let response = {}
+  const auth = req.get('authorization') || ''; // ex: "Bearer <token>"
 
-  try {
-    if (!req.headers.authorization) {
-      throw new Error('Token is missing from header')
-    }
-
-    const userToken = req.headers.authorization.split('Bearer')[1].trim()
-    const decodedToken = jwt.verify(
-      userToken,
-      process.env.SECRET_KEY || 'default-secret-key'
-    )
-    return next()
-  } catch (error) {
-    console.error('Error in tokenValidation.js', error)
-    response.status = 401
-    response.message = error.message
+  if (!auth.startsWith('Bearer ')) {
+    return res.status(401).json({ message: 'Missing or malformed Authorization header' });
   }
 
-  return res.status(response.status).send(response)
-}
+  const token = auth.slice(7).trim(); // retire "Bearer "
+
+  try {
+    const decoded = jwt.verify(token, SECRET);
+    req.user = decoded; // si tu veux l’exposer aux routes suivantes
+    return next();
+  } catch (err) {
+    console.error('Error in tokenValidation.js:', err.message);
+    return res.status(401).json({ message: 'Invalid or expired token' });
+  }
+};
