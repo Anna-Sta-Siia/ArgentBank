@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { API_BASE, apiFetch } from '../../lib/api';
+import { apiFetch } from '../../lib/api.js';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { setToken } from '../../slices/auth/authSlice';
