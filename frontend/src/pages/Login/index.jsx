@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { API_BASE, apiFetch } from '../../lib/api';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { setToken } from '../../slices/auth/authSlice';
@@ -21,17 +22,12 @@ export default function LoginPage() {
     const remember = form.remember.checked;
 
     try {
-      // Login pour récupérer le token
-      const resp = await fetch('http://localhost:3001/api/v1/user/login', {
+      // Login pour récupérer le token (utilise l’API_BASE)
+      const data = await apiFetch('/api/v1/user/login', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
-      if (!resp.ok) {
-        throw new Error(`Login échoué (${resp.status})`);
-      }
 
-      const data = await resp.json();
       const token = data.body?.token;
       if (!token) {
         throw new Error('Token manquant dans la réponse');
@@ -40,7 +36,7 @@ export default function LoginPage() {
       //  Stockage du token dans Redux
       dispatch(setToken({ token, remember }));
 
-      // Chargement du profil (déclenche fetchProfile)
+      // Chargement du profil
       await dispatch(fetchProfile()).unwrap();
 
       //  Redirection vers la page protégée
