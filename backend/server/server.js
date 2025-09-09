@@ -1,13 +1,15 @@
 // server/server.js
-const express = require('express');
-const dotenv = require('dotenv');
-const cors = require('cors');
 const path = require('path');
+// Charge .env en local ; sur Render les vars viennent de l'env
+require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
+
+const express = require('express');
+const cors = require('cors');
 const swaggerUi = require('swagger-ui-express');
 const yaml = require('yamljs');
-const dbConnection = require('./database/connection');
 
-dotenv.config();
+// ⬇️ importe la fonction et garde le même nom
+const connectDB = require('./database/connection');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -22,42 +24,33 @@ const isProd = process.env.NODE_ENV === 'production';
 
 const corsOptions = {
   origin(origin, cb) {
-    // Autorise Postman/cURL/healthchecks sans Origin
     if (!origin) return cb(null, true);
-
-    // ✅ En DEV, autorise n'importe quel port localhost/127.0.0.1
     if (!isProd && /^http:\/\/(localhost|127\.0\.0\.1):\d+$/.test(origin)) {
       return cb(null, true);
     }
-
-    // ✅ En PROD, on reste strict : seulement les origins whitelistes
     if (ALLOWED.includes(origin)) return cb(null, true);
-
     return cb(new Error('Not allowed by CORS: ' + origin));
   },
   credentials: true,
   methods: ['GET','POST','PUT','PATCH','DELETE','OPTIONS'],
   allowedHeaders: ['Content-Type','Authorization'],
-  maxAge: 600 // ← 10 minutes de cache du prévol côté navigateur
+  maxAge: 600,
 };
 
-// Ajoute l’en-tête Vary pour caches/proxies
 app.use((_req, res, next) => {
-  res.set('Vary', 'Origin'); // variantes par Origin si c’est mis en cache
-  // Pour les endpoints sensibles (auth, profil), évite tout cache partagé :
-  res.set('Cache-Control', 'private, no-store'); // ou au minimum: 'private, no-cache'
+  res.set('Vary', 'Origin');
+  res.set('Cache-Control', 'private, no-store');
   next();
 });
-
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions)); // ← gère le prévol (OPTIONS)
+app.options('*', cors(corsOptions));
 
 /* ---------- Parsers ---------- */
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-/* ---------- DB ---------- */
-dbConnection();
+/* ---------- DB (une seule fois !) ---------- */
+connectDB();
 
 /* ---------- Healthcheck ---------- */
 app.get('/api/v1/ping', (_req, res) => res.json({ ok: true }));
@@ -65,7 +58,7 @@ app.get('/api/v1/ping', (_req, res) => res.json({ ok: true }));
 /* ---------- Routes API ---------- */
 app.use('/api/v1/user', require('./routes/userRoutes'));
 
-/* ---------- Swagger (chemin robuste) ---------- */
+/* ---------- Swagger ---------- */
 const swaggerDocs = yaml.load(path.join(__dirname, '..', 'swagger.yaml'));
 if (process.env.NODE_ENV !== 'production') {
   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
@@ -76,7 +69,7 @@ app.get('/', (_req, res) => {
   res.send('Hello from my Express server v2!');
 });
 
-/* ---------- Gestion simple des erreurs CORS ---------- */
+/* ---------- Gestion erreurs CORS ---------- */
 app.use((err, _req, res, next) => {
   if (err && String(err.message || '').startsWith('Not allowed by CORS')) {
     return res.status(403).json({ status: 403, message: err.message });
@@ -84,7 +77,7 @@ app.use((err, _req, res, next) => {
   next(err);
 });
 
-/* ---------- Démarrage ---------- */
+/* ---------- Start ---------- */
 app.listen(PORT, () => {
   console.log(`API listening on port ${PORT}`);
 });

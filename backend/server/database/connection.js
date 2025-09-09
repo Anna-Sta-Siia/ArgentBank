@@ -1,32 +1,26 @@
-// connection.js
+// backend/server/database/connection.js
+require('dotenv').config();
 const mongoose = require('mongoose');
 
-function sanitize(url) {
-  if (!url) return '';
-  // enlève d'éventuels guillemets / espaces qui auraient été collés dans le dashboard Render
-  return String(url).trim().replace(/^['"]|['"]$/g, '');
+function sanitize(u){ return (u||'').trim().replace(/^['"]|['"]$/g,''); }
+
+let uri = sanitize(process.env.DATABASE || process.env.DATABASE_URL);
+if (!uri) {
+  if (process.env.NODE_ENV === 'production') {
+    console.error('❌ Aucune variable DATABASE (ou DATABASE_URL) n’est définie en production.');
+    process.exit(1);
+  }
+  uri = 'mongodb://localhost:27017/argentbank';
 }
 
-const rawUrl = process.env.DATABASE_URL || process.env.MONGO_URL || '';
-const databaseUrl = sanitize(rawUrl);
+const masked = uri.replace(/\/\/([^:]*):([^@]*)@/, '//***:***@');
 
-if (!databaseUrl) {
-  console.error('❌ DATABASE_URL est vide ou manquante ! Vérifie les variables Render.');
-  process.exit(1);
-}
-
-// log non-sensible (on masque mdp)
-const masked = databaseUrl.replace(/\/\/[^:]+:[^@]+@/, '//***:***@');
-console.log('ℹ️ DATABASE_URL (détectée par le serveur) =', masked);
-
-module.exports = async () => {
+module.exports = async function connectDB() {
   try {
-    await mongoose.connect(databaseUrl, {
-      // options facultatives selon ta version de mongoose
-    });
-    console.log('✅ Database successfully connected to', masked);
-  } catch (error) {
-    console.error(`❌ Database Connectivity Error: ${error}`);
-    throw error;
+    await mongoose.connect(uri);
+    console.log('✅ DB connectée →', masked);
+  } catch (e) {
+    console.error('❌ Mongo error:', e.message);
+    process.exit(1);
   }
 };
