@@ -59,6 +59,9 @@ Once you run the `populate-db` script, you should have two users in your databas
 - Email: `steve@rogers.com`,
 - Password: `password456`
 
+⚠️ Ne pas exécuter npm run populate-db en production.
+Le script est uniquement destiné aux environnements de développement/tests.
+
 ## API Documentation
 
 To learn more about how the API works, once you have started your local environment, you can visit: http://localhost:3001/api-docs

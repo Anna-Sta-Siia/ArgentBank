@@ -1,97 +1,97 @@
-const User = require('../database/models/userModel')
-const bcrypt = require('bcrypt')
-const jwt = require('jsonwebtoken')
+// backend/server/services/userService.js
+const User = require('../database/models/userModel');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const SECRET = require('../config/jwt');
 
-module.exports.createUser = async serviceData => {
-  console.log(serviceData)
+/**
+ * Récupère l'utilisateur authentifié depuis req.user (middleware)
+ * ou, en fallback, en vérifiant le JWT présent dans l'en-tête Authorization.
+ */
+function getAuthUser(req) {
+  if (req.user?.id) return req.user;
+
+  const auth = req.headers.authorization || '';
+  if (!auth.startsWith('Bearer ')) {
+    throw new Error('Missing token');
+  }
+  const token = auth.slice(7).trim();
+
+  const decoded = jwt.verify(token, SECRET);
+  return { id: decoded.userId, role: decoded.role };
+}
+
+module.exports.createUser = async (body) => {
   try {
-    const user = await User.findOne({ email: serviceData.email })
-    if (user) {
-      throw new Error('Email already exists')
-    }
+    const existing = await User.findOne({ email: body.email });
+    if (existing) throw new Error('Email already exists');
 
-    const hashPassword = await bcrypt.hash(serviceData.password, 12)
+    const hash = await bcrypt.hash(body.password, 12);
 
+    // Le rôle est défini par le schéma (default 'demo').
+    // Ne JAMAIS accepter "role" venant du client ici.
     const newUser = new User({
-      email: serviceData.email,
-      password: hashPassword,
-      firstName: serviceData.firstName,
-      lastName: serviceData.lastName,
-      userName: serviceData.userName
-    })
-  console.log(newUser)
-    let result = await newUser.save()
+      email: body.email,
+      password: hash,
+      firstName: body.firstName,
+      lastName: body.lastName,
+      userName: body.userName || '',
+    });
 
-    return result
-  } catch (error) {
-    console.error('Error in userService.js', error)
-    throw new Error(error)
+    const saved = await newUser.save();
+    return saved.toObject(); // le modèle supprime password/_id/__v
+  } catch (err) {
+    console.error('userService.createUser:', err);
+    throw new Error(err.message || String(err));
   }
-}
+};
 
-module.exports.getUserProfile = async serviceData => {
+module.exports.loginUser = async (body) => {
   try {
-    const jwtToken = serviceData.headers.authorization.split('Bearer')[1].trim()
-    const decodedJwtToken = jwt.decode(jwtToken)
-    const user = await User.findOne({ _id: decodedJwtToken.id })
+    const user = await User.findOne({ email: body.email });
+    if (!user) throw new Error('User not found!');
 
-    if (!user) {
-      throw new Error('User not found!')
-    }
+    const ok = await bcrypt.compare(body.password, user.password);
+    if (!ok) throw new Error('Password is invalid');
 
-    return user.toObject()
-  } catch (error) {
-    console.error('Error in userService.js', error)
-    throw new Error(error)
+    // ⬇⬇ Le rôle est signé dans le token
+    const payload = { userId: user._id.toString(), role: user.role };
+    const token = jwt.sign(payload, SECRET, { expiresIn: '24h' });
+
+    return { token };
+  } catch (err) {
+    console.error('userService.loginUser:', err);
+    throw new Error(err.message || String(err));
   }
-}
+};
 
-module.exports.loginUser = async serviceData => {
+module.exports.getUserProfile = async (req) => {
   try {
-    const user = await User.findOne({ email: serviceData.email })
-
-    if (!user) {
-      throw new Error('User not found!')
-    }
-
-    const isValid = await bcrypt.compare(serviceData.password, user.password)
-
-    if (!isValid) {
-      throw new Error('Password is invalid')
-    }
-
-    const token = jwt.sign(
-      { id: user._id },
-      process.env.SECRET_KEY || 'default-secret-key',
-      { expiresIn: '1d' }
-    )
-
-    return { token }
-  } catch (error) {
-    console.error('Error in userService.js', error)
-    throw new Error(error)
+    const { id } = getAuthUser(req);
+    const user = await User.findById(id);
+    if (!user) throw new Error('User not found!');
+    return user.toObject();
+  } catch (err) {
+    console.error('userService.getUserProfile:', err);
+    throw new Error(err.message || String(err));
   }
-}
+};
 
-module.exports.updateUserProfile = async serviceData => {
+module.exports.updateUserProfile = async (req) => {
   try {
-    const jwtToken = serviceData.headers.authorization.split('Bearer')[1].trim()
-    const decodedJwtToken = jwt.decode(jwtToken)
-    const user = await User.findOneAndUpdate(
-      { _id: decodedJwtToken.id },
-      {
-        userName: serviceData.body.userName
-      },
+    const { id } = getAuthUser(req);
+    const { userName } = req.body || {};
+
+    const updated = await User.findByIdAndUpdate(
+      id,
+      { userName },
       { new: true }
-    )
+    );
 
-    if (!user) {
-      throw new Error('User not found!')
-    }
-
-    return user.toObject()
-  } catch (error) {
-    console.error('Error in userService.js', error)
-    throw new Error(error)
+    if (!updated) throw new Error('User not found!');
+    return updated.toObject();
+  } catch (err) {
+    console.error('userService.updateUserProfile:', err);
+    throw new Error(err.message || String(err));
   }
-}
+};

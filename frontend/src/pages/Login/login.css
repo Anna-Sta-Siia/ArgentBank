@@ -63,3 +63,20 @@
     width: 50%;
   }
 }
+.demo-cta {
+  display: flex;
+  justify-content: center;
+  margin: 12px;
+}
+.demo-button {
+  border-color: var(--color-primary-green);
+  padding: 10px 14px;
+  background: var(--color-primary-green);
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+.demo-button:focus-visible {
+  outline: 3px solid #99b3ff;
+  outline-offset: 2px;
+}

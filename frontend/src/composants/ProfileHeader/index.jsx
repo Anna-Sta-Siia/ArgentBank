@@ -39,8 +39,9 @@ export default function ProfileHeader({ user, error }) {
         <div className="edit-name">
           <input
             name="username"
-            autoComplete="username"
+            autoComplete="off"
             type="text"
+            spellCheck={false}
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
           />
