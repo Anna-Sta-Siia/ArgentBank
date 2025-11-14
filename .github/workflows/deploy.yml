@@ -30,13 +30,16 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
 
       - name: Install dependencies
-        run: npm --prefix frontend ci
+        working-directory: frontend
+        run: npm install
 
       - name: Build project
-        run: npm --prefix frontend run build
+        working-directory: frontend
+        run: npm run build
 
       - name: Create 404.html
-        run: cp frontend/dist/index.html frontend/dist/404.html
+        working-directory: frontend
+        run: cp dist/index.html dist/404.html
 
       - name: Upload artifact for GitHub Pages
         uses: actions/upload-pages-artifact@v3
