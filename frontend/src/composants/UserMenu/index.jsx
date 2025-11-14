@@ -6,6 +6,7 @@ import {
   DEMO_NOTICE_FLAG,
   DEMO_PROFILE_OVERLAY,
 } from '../../constants/demo.js';
+import './userMenu.css';
 
 export default function UserMenu() {
   const dispatch = useDispatch();
